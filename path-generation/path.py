@@ -1,4 +1,5 @@
 # Contains the implementation of a path which is simply a series of splines
+import spline as s
 from math import modf
 from scipy.integrate import quad
 from numpy.linalg import norm
@@ -80,3 +81,15 @@ class Path:
             points.append(self.eval(1))
             x,y = zip(*points)
             plt.plot(x,y)
+
+def from_waypoints(waypoints):
+    last_waypoint = None
+    splines = []
+    for w in waypoints:
+        if not last_waypoint:
+            last_waypoint = w
+        else:
+            spline = s.from_waypoints(last_waypoint,w)
+            splines.append(spline)
+            last_waypoint = w
+    return Path(splines)
