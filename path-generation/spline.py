@@ -88,18 +88,11 @@ class Spline:
 
     def draw(self,plt):
         points = []
-        planningPoints = []
-
-        for t in self.planning_times(0.25):
-            planningPoints.append(self.eval(t))
-
         for t in range(1000):
             points.append(self.eval(t/1000.0))
-
+        points.append(self.eval(1))
         x,y = zip(*points)
-        px,py = zip(*planningPoints)
         plt.plot(x,y)
-        plt.plot(px,py,'r.')
 
 # A waypoint is simply a position, velocity, and acceleration
 class Waypoint:
