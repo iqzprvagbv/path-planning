@@ -6,7 +6,7 @@ from spline  import Waypoint
 # Width of the robot in feet
 robot_width = 2
 # Max Velocity of robot in fps
-max_velocity = 1
+max_velocity = 15
 # Max acceleration of robot in fps^2
 max_acceleration = 10
 
