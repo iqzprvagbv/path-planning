@@ -39,7 +39,7 @@ class Path:
 
     def curvature_radius(self,t):
         s, x = self.__pick_spline(t)
-        return s.curvature_radius(t)
+        return s.curvature_radius(x)
 
     def length(self,a,b):
         return quad(lambda t: norm(self.tangent(t)),a,b)[0]

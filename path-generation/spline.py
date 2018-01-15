@@ -102,9 +102,9 @@ class Waypoint:
         self.a = array(a)
 
     def __str__(self):
-        pos = "Position: " + self.p + "\n"
-        vel = "Velocity: " + self.v + "\n"
-        acc = "Acceleration: " + self.a + "\n"
+        pos = "Position: " + str(self.p) + "\n"
+        vel = "Velocity: " + str(self.v) + "\n"
+        acc = "Acceleration: " + str(self.a)
         return "Waypoint:\n" + pos + vel + acc
 
 # Two waypoints uniquely determine a spline, this constructs that spline
