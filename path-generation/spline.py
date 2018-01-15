@@ -29,7 +29,6 @@ class Spline:
         return [1,t,t**2,t**3,t**4,t**5]
 
     def __dparameter(self, t):
-        print "Evaluating derivative at: " + str(t)
         return [0,1,2*t,3*t**2,4*t**3,5*t**4]
 
     def __ddparameter(self,t):
