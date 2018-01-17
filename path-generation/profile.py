@@ -120,15 +120,14 @@ class VelocityProfile:
             p.compute_wheel_velocity(self.robot)
         print "Done!"
 
-    def __draw_curve(self,canvas):
-
-        points = []
-        for p in self.points:
-            points.append(p.position)
-
-        x,y = zip(*points)
-        self.path.draw(canvas)
-        canvas.plot(x,y,'r.')
+    def __draw_curve(self,canvas,planning=False):
+        self.path.draw(canvas,segmented=True)
+        if planning:
+            points = []
+            for p in self.points:
+                points.append(p.position)
+                x,y = zip(*points)
+                canvas.plot(x,y,'r.')
         canvas.axis('equal')
 
     def __draw_velocities(self,canvas):
