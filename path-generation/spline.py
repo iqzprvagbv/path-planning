@@ -4,7 +4,7 @@
 from numpy           import dot, array
 from numpy.linalg    import norm
 from scipy.integrate import quad
-from scipy.optimize  import newton
+from scipy.optimize  import brentq
 
 class Spline:
     def __init__(self,p0,p1,p2,p3,p4,p5):
@@ -67,7 +67,7 @@ class Spline:
         else:
             f = lambda x: self.length(t,x) - ds
             fprime = lambda x: norm(self.tangent(t))
-            root = newton(f, guess, fprime)
+            root = brentq(f, t, 1)
 
         return root
 

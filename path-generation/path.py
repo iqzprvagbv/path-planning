@@ -3,7 +3,7 @@ import spline as s
 from math import modf
 from scipy.integrate import quad
 from numpy.linalg import norm
-from scipy.optimize import newton
+from scipy.optimize import brentq
 
 class Path:
     def __init__(self, splines=[]):
@@ -50,7 +50,7 @@ class Path:
         else:
             f = lambda x: self.length(t,x) - ds
             fprime = lambda x: norm(self.tangent(t))
-            root = newton(f, guess, fprime)
+            root = brentq(f, t, 1)
 
         return root
 
