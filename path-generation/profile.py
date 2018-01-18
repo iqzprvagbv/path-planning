@@ -2,12 +2,13 @@
 # working towards.
 from math import sqrt
 
+import sys
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import seaborn as sns
 
 class PlanningPoint:
-    def __init__(self,p,t,R,D,T=None,V=None,v=None,vr=None,vl=None):
+    def __init__(self,p,t,R,D,T=None,V=None,v=None,vr=None,vl=None,A=None):
         self.internal_time   = t
         self.R               = R
         self.distance        = D
@@ -17,6 +18,7 @@ class PlanningPoint:
         self.right_velocity  = vr
         self.left_velocity   = vl
         self.position        = p
+        self.max_accel       = A
         self.total_time      = None
 
     def __str__(self):
@@ -36,12 +38,17 @@ class PlanningPoint:
         self.max_velocity = v
 
     def compute_wheel_velocity(self,robot):
-        if self.R == 0:
-            self.right_velocity = self.actual_velocity
-            self.left_velocity = self.actual_velocity
+        if self.actual_velocity is None:
+            velocity = self.max_velocity
         else:
-            self.right_velocity = self.actual_velocity/self.R*(self.R+robot.width/2)
-            self.left_velocity  = self.actual_velocity/self.R*(self.R-robot.width/2)
+            velocity = self.actual_velocity
+
+        if self.R == 0:
+            self.right_velocity = velocity
+            self.left_velocity = velocity
+        else:
+            self.right_velocity = velocity/self.R*(self.R+robot.width/2)
+            self.left_velocity  = velocity/self.R*(self.R-robot.width/2)
 
 class VelocityProfile:
     def __init__(self,path,robot,ds):
@@ -50,6 +57,7 @@ class VelocityProfile:
         self.ds = ds
         self.points = []
         self.__init_points()
+        self.__establish_accel()
         self.__forward_consistency(0)
         self.__reverse_consistency(0)
         self.__establish_timestamps()
@@ -64,10 +72,30 @@ class VelocityProfile:
             point = self.path.eval(t)
             p = PlanningPoint(point,t,R,D)
             p.compute_max_velocity(self.robot)
+            p.compute_wheel_velocity(self.robot)
             self.points.append(p)
             last_t = t
         print "Done!"
 
+    def __establish_accel(self):
+        print "Establishing Maximum Accelerations"
+        last_point = None
+        for p in self.points:
+            if last_point is None:
+                last_point = p
+            else:
+                delta_right = abs(p.right_velocity - last_point.right_velocity)
+                delta_left  = abs(p.left_velocity - last_point.left_velocity)
+                R = max(p.R, last_point.R)
+                w = self.robot.width
+                a = self.robot.max_acceleration
+                if delta_right > delta_left:
+                    last_point.max_accel = (a*R)/(R + w/2)
+                else:
+                    last_point.max_accel = (a*R)/(R - w/2)
+                last_point = p
+        last_point.max_accel = a
+        print "Done"
     def __forward_consistency(self,initial_velocity):
         print "Establishing Forward Consistency..."
         last_velocity = None
@@ -79,7 +107,7 @@ class VelocityProfile:
                 #print "Maximal Velocity at Point: " + str(p.max_velocity)
                 p.actual_velocity = min(initial_velocity,p.max_velocity)
             else:
-                obtainable = sqrt(last_velocity**2+2*self.robot.max_acceleration*p.distance)
+                obtainable = sqrt(last_velocity**2+2*p.max_accel*p.distance)
                 p.actual_velocity = min(p.max_velocity,obtainable)
             #print "After: " + str(p.actual_velocity)
             last_velocity = p.actual_velocity
@@ -92,7 +120,7 @@ class VelocityProfile:
             if last_velocity is None:
                 p.actual_velocity = min(final_velocity,p.actual_velocity)
             else:
-                obtainable = sqrt(last_velocity**2+2*self.robot.max_acceleration*last_distance)
+                obtainable = sqrt(last_velocity**2+2*p.max_accel*last_distance)
                 p.actual_velocity = min(p.actual_velocity,obtainable)
 
             last_distance = p.distance
