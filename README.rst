@@ -12,6 +12,7 @@ What's left to do?
 ==================
 
 So much.
+
 - Rotational Acceleration: at the moment no thought is put into making sure the max acceleration at each point respects rotational constraints. The rotational acceleration branch has some work done on it but it basically just keeps lowering the over all max acceleration of the robot until the wheels are never asked to do something they can't
 - Output: right now all it's doing is drawing all the data, would be nice to package it into some form for robots to understand
 - More Drawing: Would be nice to be able to draw the path of the left and right wheels to verify that everything looks nice
