@@ -24,8 +24,9 @@ class Path:
     # is basically all the logic as then we can just return the
     # splines data at that point
     def __pick_spline(self,t):
-        if t == 1:
-            return (self.splines[self.segments-1],1)
+        if t >= 1:
+            x = t - self.segments
+            return (self.splines[self.segments-1],x)
         x, s = modf(t*self.segments)
         return (self.splines[int(s)],x)
 

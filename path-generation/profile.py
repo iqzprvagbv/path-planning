@@ -1,6 +1,7 @@
 # Defines a velocity profile, which is the big object we've been
 # working towards.
 from math import sqrt
+from util import diff
 
 import sys
 import matplotlib.pyplot as plt
@@ -8,9 +9,10 @@ import matplotlib.gridspec as gridspec
 import seaborn as sns
 
 class PlanningPoint:
-    def __init__(self,p,t,R,D,T=None,V=None,v=None,vr=None,vl=None,A=None):
+    def __init__(self,p,t,R,R_prime, D,T=None,V=None,v=None,vr=None,vl=None,A=None):
         self.internal_time   = t
         self.R               = R
+        self.R_prime         = R_prime
         self.distance        = D
         self.external_time   = T
         self.max_velocity    = V
@@ -57,20 +59,29 @@ class VelocityProfile:
         self.ds = ds
         self.points = []
         self.__init_points()
-        self.__establish_accel()
-        self.__forward_consistency(0)
-        self.__reverse_consistency(0)
-        self.__establish_timestamps()
-        self.__init_wheels()
+        #broken
+        #self.__establish_accel()
+        # Dirty Hack
+        actual_max_accel = self.robot.max_acceleration
+        current_max_accel = float('inf')
+        while current_max_accel > actual_max_accel:
+            print "Ensuring Consitency of Wheels"
+            self.__forward_consistency(0)
+            self.__reverse_consistency(0)
+            self.__establish_timestamps()
+            self.__init_wheels()
+            current_max_accel = self.__get_max_accel()
+            self.robot.max_acceleration = 3./4 * self.robot.max_acceleration
 
     def __init_points(self):
         print "Initializing Planning Points..."
         last_t = 0
         for t in self.path.planning_times(self.ds):
             R = self.path.curvature_radius(t)
+            R_prime = diff(self.path.curvature_radius,t)
             D = self.path.length(last_t,t)
             point = self.path.eval(t)
-            p = PlanningPoint(point,t,R,D)
+            p = PlanningPoint(point,t,R,R_prime,D)
             p.compute_max_velocity(self.robot)
             p.compute_wheel_velocity(self.robot)
             self.points.append(p)
@@ -78,6 +89,8 @@ class VelocityProfile:
         print "Done!"
 
     def __establish_accel(self):
+        # This is currently so broken and I'm too lazy
+        # to sort it out
         print "Establishing Maximum Accelerations"
         last_point = None
         for p in self.points:
@@ -86,13 +99,22 @@ class VelocityProfile:
             else:
                 delta_right = abs(p.right_velocity - last_point.right_velocity)
                 delta_left  = abs(p.left_velocity - last_point.left_velocity)
-                R = max(p.R, last_point.R)
-                w = self.robot.width
+                R = last_point.R
+                R_prime = last_point.R_prime
+                k = self.robot.width/2
                 a = self.robot.max_acceleration
+                v  = last_point.max_velocity
+                vr = last_point.right_velocity
+                vl = last_point.left_velocity
                 if delta_right > delta_left:
-                    last_point.max_accel = (a*R)/(R + w/2)
+                    n = R_prime*vr + R*a - v*(R_prime + k)
+                    d = R + k
+                    last_point.max_accel = n/d
                 else:
-                    last_point.max_accel = (a*R)/(R - w/2)
+                    n = R_prime*vr + R*a - v*(R_prime - k)
+                    d = R - k
+                    last_point.max_accel = n/d
+                last_point.max_accel = abs(last_point.max_accel)
                 last_point = p
         last_point.max_accel = a
         print "Done"
@@ -107,7 +129,7 @@ class VelocityProfile:
                 #print "Maximal Velocity at Point: " + str(p.max_velocity)
                 p.actual_velocity = min(initial_velocity,p.max_velocity)
             else:
-                obtainable = sqrt(last_velocity**2+2*p.max_accel*p.distance)
+                obtainable = sqrt(last_velocity**2+2*self.robot.max_acceleration*p.distance)
                 p.actual_velocity = min(p.max_velocity,obtainable)
             #print "After: " + str(p.actual_velocity)
             last_velocity = p.actual_velocity
@@ -120,7 +142,7 @@ class VelocityProfile:
             if last_velocity is None:
                 p.actual_velocity = min(final_velocity,p.actual_velocity)
             else:
-                obtainable = sqrt(last_velocity**2+2*p.max_accel*last_distance)
+                obtainable = sqrt(last_velocity**2+2*self.robot.max_acceleration*last_distance)
                 p.actual_velocity = min(p.actual_velocity,obtainable)
 
             last_distance = p.distance
@@ -147,6 +169,19 @@ class VelocityProfile:
         for p in self.points:
             p.compute_wheel_velocity(self.robot)
         print "Done!"
+
+    def __get_max_accel(self):
+        lp = None
+        max_accel = 0
+        for p in self.points:
+            if lp is None:
+                lp = p
+            else:
+                dt = p.external_time - lp.external_time
+                al = (abs(p.left_velocity - lp.left_velocity))/dt
+                ar = (abs(p.right_velocity - lp.right_velocity))/dt
+                max_accel = max(max_accel, al, ar)
+        return max_accel
 
     def __draw_curve(self,canvas,planning=False):
         self.path.draw(canvas,segmented=True)
