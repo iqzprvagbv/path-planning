@@ -1,16 +1,18 @@
-===============
-Path Generation
-===============
-------------------------------------------
-Generating paths differential drive robots
-------------------------------------------
+==============================================
+Generating paths for differential drive robots
+==============================================
 
 What is this?
 =============
 
-At the moment not much, the idea is this program should take a list of waypoints and generate a list of left and right velocities for the robot to follow a path which goes through each of the waypoints smoothly. I plan to fill this readme out better when it's actually usable, as it stands it's basically a pet project.
+At the moment not much, the idea is this program should take a list of waypoints, generate a smooth path through those waypoints, and then generate a list of left and right wheel velocities to follow said trajectory. All while respecting the kinematic constraints of the robot. An example of it's current output looks like:
+.. image::demo.png
 
 What's left to do?
 ==================
 
-So much. Currently the program will draw all the data for humans to verify but won't output anything for a robot to consume. Moreover it doesn't take into account the rotational velocity constraints when generating the velocity profile. Even the drawing could use work, it would be nice if it showed the width of the robot, as it stands it only draws the center points motion. 
+So much.
+- Rotational Acceleration: at the moment no thought is put into making sure the max acceleration at each point respects rotational constraints. The rotational acceleration branch has some work done on it but it basically just keeps lowering the over all max acceleration of the robot until the wheels are never asked to do something they can't
+- Output: right now all it's doing is drawing all the data, would be nice to package it into some form for robots to understand
+- More Drawing: Would be nice to be able to draw the path of the left and right wheels to verify that everything looks nice
+- Interactive Drawing: Dunno if I'll ever actually do this as this was just a proof of concept, but it would be nice to be able to actually define the curves in real time.
