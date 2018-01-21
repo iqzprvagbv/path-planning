@@ -6,6 +6,7 @@ What is this?
 =============
 
 At the moment not much, the idea is this program should take a list of waypoints, generate a smooth path through those waypoints, and then generate a list of left and right wheel velocities to follow said trajectory. All while respecting the kinematic constraints of the robot. An example of it's current output looks like:
+
 .. image::demo.png
 
 What's left to do?
