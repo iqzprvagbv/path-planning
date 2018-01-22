@@ -38,6 +38,15 @@ class Path:
         s, x = self.__pick_spline(t)
         return self.segments * s.tangent(x)
 
+    def unit_tangent(self,t):
+        s, x = self.__pick_spline(t)
+        return s.unit_tangent(x)
+
+    def unit_normal(self,t):
+        s, x = self.__pick_spline(t)
+        return s.unit_normal(t)
+
+
     def curvature_radius(self,t):
         s, x = self.__pick_spline(t)
         return s.curvature_radius(x)

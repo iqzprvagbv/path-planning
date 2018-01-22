@@ -1,7 +1,7 @@
 # This file defines the underlying spline we use to represent the paths
 # They are quintic bezier curves
 
-from numpy           import dot, array
+from numpy           import dot, array, rot90
 from numpy.linalg    import norm
 from scipy.integrate import quad
 from scipy.optimize  import brentq
@@ -51,6 +51,12 @@ class Spline:
 
     def tangent(self,t):
         return self.__derivative(t)
+
+    def unit_tangent(self,t):
+        return self.tangent(t)/norm(self.tangent(t))
+
+    def unit_normal(self,t):
+        return rot90(self.unit_tangent(t))
 
     def curvature_radius(self,t):
         return 1/self.__curvature(t)
