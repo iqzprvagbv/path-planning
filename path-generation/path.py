@@ -1,9 +1,9 @@
 # Contains the implementation of a path which is simply a series of splines
 import spline as s
-from math import modf
+from math            import modf
 from scipy.integrate import quad
-from numpy.linalg import norm
-from scipy.optimize import brentq
+from numpy.linalg    import norm
+from scipy.optimize  import brentq
 
 class Path:
     def __init__(self, splines=[]):
@@ -26,8 +26,12 @@ class Path:
     def __pick_spline(self,t):
         if t >= 1:
             x = t - self.segments
-            return (self.splines[self.segments-1],x)
-        x, s = modf(t*self.segments)
+            s = self.segments-1
+        elif t <= 0:
+            x = t
+            s = 0
+        else:
+            x, s = modf(t*self.segments)
         return (self.splines[int(s)],x)
 
     def eval(self,t):
@@ -44,8 +48,7 @@ class Path:
 
     def unit_normal(self,t):
         s, x = self.__pick_spline(t)
-        return s.unit_normal(t)
-
+        return s.unit_normal(x)
 
     def curvature_radius(self,t):
         s, x = self.__pick_spline(t)
@@ -63,11 +66,6 @@ class Path:
             root = brentq(f, t, 1)
 
         return root
-
-#    def planning_times(self,ds):
-#        for s in self.splines:
-#            for t in s.planning_times:
-#                yield t/float(self.segments)
 
     def planning_times(self,ds):
         t  = 0
