@@ -56,7 +56,8 @@ class Spline:
         return self.tangent(t)/norm(self.tangent(t))
 
     def unit_normal(self,t):
-        return rot90(self.unit_tangent(t))
+        tangent = self.unit_tangent(t)
+        return dot(tangent,[[0,1],[-1,0]])
 
     def curvature_radius(self,t):
         return 1/self.__curvature(t)
