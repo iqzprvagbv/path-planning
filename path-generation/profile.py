@@ -2,11 +2,13 @@
 # working towards.
 from math import sqrt
 from util import diff
+from numpy.linalg import norm
 
 import sys
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import seaborn as sns
+
 
 class PlanningPoint:
     def __init__(self,p,t,R,R_prime, D,T=None,V=None,v=None,vr=None,vl=None,A=None):
@@ -189,8 +191,8 @@ class VelocityProfile:
             points = []
             for p in self.points:
                 points.append(p.position)
-                x,y = zip(*points)
-                canvas.plot(x,y,'r.')
+            x,y = zip(*points)
+            canvas.plot(x,y,'r.')
         canvas.axis('equal')
 
     def __draw_velocities(self,canvas):
@@ -222,6 +224,21 @@ class VelocityProfile:
         plt.plot(t,vl,label="Left Wheel")
         plt.plot(t,vr,label="Right Wheel")
 
+    def __draw_wheel_paths(self,canvas):
+        right_points = []
+        left_points = []
+        for t in range(100):
+            pos = self.path.eval(t/100.)
+            normal = self.path.unit_normal(t/100.)
+            left = pos + normal * self.robot.width/2.
+            right = pos - normal * self.robot.width/2.
+            right_points.append(right)
+            left_points.append(left)
+        lx,ly = zip(*left_points)
+        rx,ry = zip(*right_points)
+        canvas.plot(lx,ly,'r--')
+        canvas.plot(rx,ry,'r--')
+
     def draw(self):
         sns.set()
         fig = plt.figure()
@@ -232,6 +249,7 @@ class VelocityProfile:
         ax3 = plt.subplot2grid((4,6), (2,3), colspan=3, rowspan=2)
 
         self.__draw_curve(ax1)
+        self.__draw_wheel_paths(ax1)
         self.__draw_velocities(ax2)
         self.__draw_wheels(ax3)
 
