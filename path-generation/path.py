@@ -86,7 +86,7 @@ class Path:
             points = []
             for t in range(1000):
                 points.append(self.eval(t/1000.0))
-            points.append(self.eval(1))
+            points.append(self.eval(t/1000.0))
             x,y = zip(*points)
             plt.plot(x,y)
 
