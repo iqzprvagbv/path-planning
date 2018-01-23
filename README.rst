@@ -16,5 +16,4 @@ So much.
 
 - Rotational Acceleration: at the moment rotational acceleration concerns are met clunkily. Basically the code just keeps lowering the over all max acceleration of the robot until the wheels are never asked to do something they can't do. This is suboptimal as it lowers the acceleration in places where it doesn't need to, and it stops as soon as the acceleration works resulting in potentially lower acceleration than is possible.
 - Output: right now all it's doing is drawing all the data, would be nice to package it into some form for robots to understand
-- More Drawing: Would be nice to be able to draw the path of the left and right wheels to verify that everything looks nice
 - Interactive Drawing: Dunno if I'll ever actually do this as this was just a proof of concept, but it would be nice to be able to actually define the curves in real time.
