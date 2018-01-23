@@ -4,9 +4,6 @@ from math import sqrt
 from util import diff
 from numpy.linalg import norm
 
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-import seaborn as sns
 import json
 
 class PlanningPoint:
@@ -188,80 +185,6 @@ class VelocityProfile:
                 ar = (abs(p.right_velocity - lp.right_velocity))/dt
                 max_accel = max(max_accel, al, ar)
         return max_accel
-
-    def __draw_curve(self,canvas,planning=False,segmented=False):
-        self.path.draw(canvas)
-        if planning:
-            points = []
-            for p in self.points:
-                points.append(p.position)
-            x,y = zip(*points)
-            canvas.plot(x,y,'r.')
-        canvas.axis('equal')
-
-    def __draw_velocities(self,canvas):
-        t = []
-        v = []
-        for p in self.points:
-            t.append(p.external_time)
-            v.append(p.actual_velocity)
-
-        canvas.set_title('Bot Velocity')
-        canvas.set_xlabel('Seconds')
-        canvas.set_ylabel('Feet Per Second')
-        canvas.set_xlim(left=0,right=self.total_time)
-        canvas.plot(t,v)
-
-    def __draw_wheel_velocities(self, plt):
-        t  = []
-        vl = []
-        vr = []
-        for p in self.points:
-            t.append(p.external_time)
-            vl.append(p.left_velocity)
-            vr.append(p.right_velocity)
-
-        plt.set_title('Wheel Velocities')
-        plt.set_xlabel('seconds')
-        plt.set_ylabel('feet per second')
-        plt.set_xlim(left=0,right=self.total_time)
-        plt.plot(t,vl,label="Left Wheel")
-        plt.plot(t,vr,label="Right Wheel")
-
-    def __draw_wheel_paths(self,canvas):
-        right_points = []
-        left_points = []
-        for t in range(100):
-            pos = self.path.eval(t/100.)
-            normal = self.path.unit_normal(t/100.)
-            left = pos + normal * self.robot.width/2.
-            right = pos - normal * self.robot.width/2.
-            right_points.append(right)
-            left_points.append(left)
-        lx,ly = zip(*left_points)
-        rx,ry = zip(*right_points)
-        canvas.plot(lx,ly,'r--')
-        canvas.plot(rx,ry,'r--')
-
-    def draw(self):
-        sns.set()
-        fig = plt.figure()
-        gridspec.GridSpec(3,5)
-
-        ax1 = plt.subplot2grid((4,6), (0,0), colspan=3, rowspan=4)
-        ax2 = plt.subplot2grid((4,6), (0,3), colspan=3, rowspan=2)
-        ax3 = plt.subplot2grid((4,6), (2,3), colspan=3, rowspan=2)
-
-        self.__draw_curve(ax1)
-        self.__draw_wheel_paths(ax1)
-        self.__draw_velocities(ax2)
-        self.__draw_wheel_velocities(ax3)
-
-        fig.tight_layout()
-
-        plt.legend()
-
-        plt.show()
 
     def json(self):
         return json.dumps(self,cls=ProfileEncoder)
