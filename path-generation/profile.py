@@ -185,8 +185,8 @@ class VelocityProfile:
                 max_accel = max(max_accel, al, ar)
         return max_accel
 
-    def __draw_curve(self,canvas,planning=False):
-        self.path.draw(canvas,segmented=True)
+    def __draw_curve(self,canvas,planning=False,segmented=False):
+        self.path.draw(canvas)
         if planning:
             points = []
             for p in self.points:
@@ -208,7 +208,7 @@ class VelocityProfile:
         canvas.set_xlim(left=0,right=self.total_time)
         canvas.plot(t,v)
 
-    def __draw_wheels(self, plt):
+    def __draw_wheel_velocities(self, plt):
         t  = []
         vl = []
         vr = []
@@ -251,7 +251,7 @@ class VelocityProfile:
         self.__draw_curve(ax1)
         self.__draw_wheel_paths(ax1)
         self.__draw_velocities(ax2)
-        self.__draw_wheels(ax3)
+        self.__draw_wheel_velocities(ax3)
 
         fig.tight_layout()
 
