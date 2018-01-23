@@ -93,14 +93,6 @@ class Spline:
         # cause the spline to always report it's endpoint as a planning point
         yield 1
 
-    def draw(self,plt):
-        points = []
-        for t in range(1000):
-            points.append(self.eval(t/1000.0))
-        points.append(self.eval(1))
-        x,y = zip(*points)
-        plt.plot(x,y)
-
 # A waypoint is simply a position, velocity, and acceleration
 class Waypoint:
     def __init__(self,p,v,a):
