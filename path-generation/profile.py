@@ -4,7 +4,6 @@ from math import sqrt
 from util import diff
 from numpy.linalg import norm
 
-import sys
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import seaborn as sns

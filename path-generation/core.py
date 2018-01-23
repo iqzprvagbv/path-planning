@@ -1,8 +1,10 @@
-from path    import from_waypoints
-from profile import VelocityProfile
-from robot   import Robot
-from spline  import Waypoint
+from path      import from_waypoints
+from profile   import VelocityProfile
+from robot     import Robot
+from spline    import Waypoint
+from visualize import draw_velocity_profile
 import util
+
 
 
 # Width of the robot in feet
@@ -29,4 +31,4 @@ ds = 0.1
 path = from_waypoints(waypoints)
 robot = Robot(robot_width,max_velocity,max_acceleration)
 vp = VelocityProfile(path,robot,ds)
-vp.draw()
+draw_velocity_profile(vp)
