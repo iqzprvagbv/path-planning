@@ -8,7 +8,7 @@ import sys
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import seaborn as sns
-
+import json
 
 class PlanningPoint:
     def __init__(self,p,t,R,R_prime, D,T=None,V=None,v=None,vr=None,vl=None,A=None):
@@ -53,6 +53,9 @@ class PlanningPoint:
         else:
             self.right_velocity = velocity/self.R*(self.R+robot.width/2)
             self.left_velocity  = velocity/self.R*(self.R-robot.width/2)
+
+    def json_object(self):
+        return {"time": self.external_time, "heading": None, "left velcoity": self.left_velocity, "right velocity": self.right_velocity}
 
 class VelocityProfile:
     def __init__(self,path,robot,ds):
@@ -120,6 +123,7 @@ class VelocityProfile:
                 last_point = p
         last_point.max_accel = a
         print "Done"
+
     def __forward_consistency(self,initial_velocity):
         print "Establishing Forward Consistency..."
         last_velocity = None
@@ -136,6 +140,7 @@ class VelocityProfile:
             #print "After: " + str(p.actual_velocity)
             last_velocity = p.actual_velocity
         print "Done!"
+
     def __reverse_consistency(self,final_velocity):
         print "Establishing Reverse Consistency..."
         last_velocity = None
@@ -258,3 +263,14 @@ class VelocityProfile:
         plt.legend()
 
         plt.show()
+
+    def json(self):
+        return json.dumps(self,cls=ProfileEncoder)
+
+class ProfileEncoder(json.JSONEncoder):
+    def default(self,obj):
+        if isinstance(obj, VelocityProfile):
+            output = []
+            for p in obj.points:
+                output.append(p.json_object())
+            return output
