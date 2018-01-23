@@ -78,18 +78,6 @@ class Path:
             dt = t - last_t
         yield 1
 
-    def draw(self,plt,segmented=False):
-        if segmented:
-            for s in self.splines:
-                s.draw(plt)
-        else:
-            points = []
-            for t in range(1000):
-                points.append(self.eval(t/1000.0))
-            points.append(self.eval(t/1000.0))
-            x,y = zip(*points)
-            plt.plot(x,y)
-
 def from_waypoints(waypoints):
     last_waypoint = None
     splines = []
