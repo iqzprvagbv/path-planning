@@ -50,6 +50,10 @@ class Path:
         s, x = self.__pick_spline(t)
         return s.unit_normal(x)
 
+    def heading(self,t):
+        s, x = self.__pick_spline(t)
+        return s.heading(x)
+
     def curvature_radius(self,t):
         s, x = self.__pick_spline(t)
         return s.curvature_radius(x)

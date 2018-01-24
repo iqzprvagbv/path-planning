@@ -7,10 +7,11 @@ from numpy.linalg import norm
 import json
 
 class PlanningPoint:
-    def __init__(self,p,t,R,D,T=None,V=None,v=None,vr=None,vl=None):
+    def __init__(self,p,t,R,D,h,T=None,V=None,v=None,vr=None,vl=None):
         self.internal_time   = t
         self.R               = R
         self.distance        = D
+        self.heading         = h
         self.external_time   = T
         self.max_velocity    = V
         self.actual_velocity = v
@@ -49,7 +50,7 @@ class PlanningPoint:
             self.left_velocity  = velocity/self.R*(self.R-robot.width/2)
 
     def json_object(self):
-        return {"time": self.external_time, "heading": None, "left velcoity": self.left_velocity, "right velocity": self.right_velocity}
+        return {"time": self.external_time, "heading": self.heading, "left velcoity": self.left_velocity, "right velocity": self.right_velocity}
 
 class VelocityProfile:
     def __init__(self,path,robot,ds):
@@ -79,7 +80,8 @@ class VelocityProfile:
             R = self.path.curvature_radius(t)
             D = self.path.length(last_t,t)
             point = self.path.eval(t)
-            p = PlanningPoint(point,t,R,D)
+            h = self.path.heading(t)
+            p = PlanningPoint(point,t,R,D,h)
             p.compute_max_velocity(self.robot)
             p.compute_wheel_velocity(self.robot)
             self.points.append(p)
