@@ -7,10 +7,9 @@ from numpy.linalg import norm
 import json
 
 class PlanningPoint:
-    def __init__(self,p,t,R,R_prime, D,T=None,V=None,v=None,vr=None,vl=None,A=None):
+    def __init__(self,p,t,R,D,T=None,V=None,v=None,vr=None,vl=None):
         self.internal_time   = t
         self.R               = R
-        self.R_prime         = R_prime
         self.distance        = D
         self.external_time   = T
         self.max_velocity    = V
@@ -18,7 +17,6 @@ class PlanningPoint:
         self.right_velocity  = vr
         self.left_velocity   = vl
         self.position        = p
-        self.max_accel       = A
         self.total_time      = None
 
     def __str__(self):
@@ -79,46 +77,14 @@ class VelocityProfile:
         last_t = 0
         for t in self.path.planning_times(self.ds):
             R = self.path.curvature_radius(t)
-            R_prime = diff(self.path.curvature_radius,t)
             D = self.path.length(last_t,t)
             point = self.path.eval(t)
-            p = PlanningPoint(point,t,R,R_prime,D)
+            p = PlanningPoint(point,t,R,D)
             p.compute_max_velocity(self.robot)
             p.compute_wheel_velocity(self.robot)
             self.points.append(p)
             last_t = t
         print "Done!"
-
-    def __establish_accel(self):
-        # This is currently so broken and I'm too lazy
-        # to sort it out
-        print "Establishing Maximum Accelerations"
-        last_point = None
-        for p in self.points:
-            if last_point is None:
-                last_point = p
-            else:
-                delta_right = abs(p.right_velocity - last_point.right_velocity)
-                delta_left  = abs(p.left_velocity - last_point.left_velocity)
-                R = last_point.R
-                R_prime = last_point.R_prime
-                k = self.robot.width/2
-                a = self.robot.max_acceleration
-                v  = last_point.max_velocity
-                vr = last_point.right_velocity
-                vl = last_point.left_velocity
-                if delta_right > delta_left:
-                    n = R_prime*vr + R*a - v*(R_prime + k)
-                    d = R + k
-                    last_point.max_accel = n/d
-                else:
-                    n = R_prime*vr + R*a - v*(R_prime - k)
-                    d = R - k
-                    last_point.max_accel = n/d
-                last_point.max_accel = abs(last_point.max_accel)
-                last_point = p
-        last_point.max_accel = a
-        print "Done"
 
     def __forward_consistency(self,initial_velocity):
         print "Establishing Forward Consistency..."
@@ -196,3 +162,5 @@ class ProfileEncoder(json.JSONEncoder):
             for p in obj.points:
                 output.append(p.json_object())
             return output
+        # This will throw an error if it's given the wrong type
+        return json.JSONEncoder.default(self, obj)
