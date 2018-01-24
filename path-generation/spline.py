@@ -78,7 +78,7 @@ class Spline:
 
         return root
 
-    # Generates a list of t such that the archlength between any two of
+    # Generates a list of t such that the archlength between consecutive
     # them are equal.
     def planning_times(self,ds):
         t  = 0
