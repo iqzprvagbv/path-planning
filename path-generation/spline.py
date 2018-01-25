@@ -1,7 +1,7 @@
 # This file defines the underlying spline we use to represent the paths
 # They are quintic bezier curves
 
-from numpy           import dot, array
+from numpy           import dot, array, clip
 from math            import acos
 from numpy.linalg    import norm
 from scipy.integrate import quad
@@ -58,7 +58,7 @@ class Spline:
 
     def heading(self,t):
         x = dot(self.unit_tangent(t),[1,0])
-        return acos(np.clip(x,-1,1))
+        return acos(clip(x,-1,1))
 
     def unit_normal(self,t):
         tangent = self.unit_tangent(t)
