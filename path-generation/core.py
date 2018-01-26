@@ -4,6 +4,8 @@ from robot     import Robot
 from spline    import Waypoint
 from visualize import draw_velocity_profile
 
+
+import numpy as np
 import util
 import cmd
 
@@ -16,10 +18,67 @@ max_acceleration = 15
 
 robot = Robot(robot_width,max_velocity,max_acceleration)
 
+# Way points for the curve to hit
+# Format: Waypoint(position, velocity vector, acceleration vector)
+waypoints = []
+waypoints.append(Waypoint((0,0),(0,10),(1,0)))
+waypoints.append(Waypoint((5,5),(0,10),(-1,0)))
+waypoints.append(Waypoint((0,10),(0,10),(1,0)))
+waypoints.append(Waypoint((15,10),(0,-10),(-1,0)))
+waypoints.append(Waypoint((10,5),(0,-10),(1,0)))
+waypoints.append(Waypoint((15,0),(0,-10),(-1,0)))
+waypoints.append(Waypoint((0,0),(0,10),(1,0)))
+
 class Prompt(cmd.Cmd):
+
     def do_waypoint(self, args):
         """ Manipulates the waypoints:\n waypoint : will list waypoints\n waypoint remove n : removes the nth waypoint (0 indexed)\n waypoint add (px,py) (vx,vy) (ay,ax) : adds waypoint with position (px,py), velocity (vx,vy), and acceleration (ax,ay)\n waypoint clear : deletes all waypoints """
 
+        if args:
+            args = args.split(' ')
+
+        else:
+            args = None
+
+        if args is None:
+            if len(waypoints) == 0:
+                print "No waypoints"
+            else:
+                for wp in waypoints:
+                    print wp
+
+        elif len(args) == 1:
+            if args[0] == "clear":
+                del waypoints[:]
+            else:
+                print " Couldn't parse, try help waypoint for more info"
+
+        elif len(args) == 2:
+            if args[0] == "remove":
+                try:
+                    index = int(args[1])
+                except ValueError:
+                    print " Could not parse", args[1]
+            else:
+                print " Couldn't parse, try help waypoint for more info"
+
+        elif len(args) == 4:
+            if args[0] == "add":
+                try:
+                    position     = np.fromstring(args[1][1:-1],sep=',')
+                    velocity     = np.fromstring(args[2][1:-1],sep=',')
+                    acceleration = np.fromstring(args[3][1:-1],sep=',')
+                    wp = Waypoint(position, velocity, acceleration)
+                    print " Adding waypoint:"
+                    print wp
+                    waypoints.append(wp)
+                except ValueError:
+                    print " Failed to parse one of the vectors"
+            else:
+                print " Couldn't parse, try help waypoint for more info"
+
+        else:
+            print " Couldn't parse, try help waypoint for more info"
 
     def do_robot(self,args):
         """ Displays and sets robot data:\n robot : will list all robot attributes\n robot [attribute] : will display value for [attribute]\n robot [attribute] x : sets [attribute] to x \n\n Attributes \n ==========\n width : Distance from left wheel to right wheel in feet\n velocity : Max velocity of robot in feet per second\n acceleration : Max acceleration of robot in feet per second squared """
@@ -71,18 +130,6 @@ if __name__ == '__main__':
     prompt = Prompt()
     prompt.prompt = "> "
     prompt.cmdloop()
-
-
-# Way points for the curve to hit
-# Format: Waypoint(position, velocity vector, acceleration vector)
-waypoints = []
-waypoints.append(Waypoint((0,0),(0,10),(1,0)))
-waypoints.append(Waypoint((5,5),(0,10),(-1,0)))
-waypoints.append(Waypoint((0,10),(0,10),(1,0)))
-waypoints.append(Waypoint((15,10),(0,-10),(-1,0)))
-waypoints.append(Waypoint((10,5),(0,-10),(1,0)))
-waypoints.append(Waypoint((15,0),(0,-10),(-1,0)))
-waypoints.append(Waypoint((0,0),(0,10),(1,0)))
 
 # Distance between planning points in feet
 ds = 0.1
