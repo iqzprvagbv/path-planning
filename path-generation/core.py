@@ -122,6 +122,19 @@ class Prompt(cmd.Cmd):
         else:
             print " Could not recogize command try \'help robot\' for more information"
 
+    def do_compute(self,args):
+        """ Computes the velocity profile for the path currently defined.\n compute ds : ds is the distance between between planning points in feet"""
+        if args:
+            try:
+                ds = float(args)
+                path = from_waypoints(waypoints)
+                vp = VelocityProfile(path,robot,ds)
+                draw_velocity_profile(vp)
+            except ValueError:
+                print " Failed to parse", args
+        else:
+            print " Failed to parse, try \'help compute\' for more help"
+
     def do_quit(self, line):
         """Quits the program"""
         return True

@@ -42,7 +42,7 @@ def draw_velocity_profile(vp):
 
     plt.legend()
 
-    plt.show()
+    plt.show(block=False)
 
 def __draw_curve(vp,canvas,planning=False,segmented=False):
     draw_path(vp.path,canvas,segmented)
