@@ -1,6 +1,6 @@
 # Defines a velocity profile, which is the big object we've been
 # working towards.
-from math import sqrt
+from math import sqrt, ceil, floor
 from util import diff
 from numpy.linalg import norm
 
@@ -76,7 +76,11 @@ class VelocityProfile:
     def __init_points(self):
         print "Initializing Planning Points..."
         last_t = 0
+        steps = ceil(self.path.l/self.ds)
+        step = 1
+        progress = 0
         for t in self.path.planning_times(self.ds):
+            print '\r[{0}{1}] {2}%'.format('#'*int(progress * 30), '-'*(int((1-progress) * 30)),int(progress*100)),
             R = self.path.curvature_radius(t)
             D = self.path.length(last_t,t)
             point = self.path.eval(t)
@@ -86,6 +90,8 @@ class VelocityProfile:
             p.compute_wheel_velocity(self.robot)
             self.points.append(p)
             last_t = t
+            step += 1
+            progress = step/steps
         print "Done!"
 
     def __forward_consistency(self,initial_velocity):
