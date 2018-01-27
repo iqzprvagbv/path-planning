@@ -21,14 +21,6 @@ robot = Robot(robot_width,max_velocity,max_acceleration)
 # Way points for the curve to hit
 # Format: Waypoint(position, velocity vector, acceleration vector)
 waypoints = []
-waypoints.append(Waypoint((1,0),(0,10),(1,0)))
-waypoints.append(Waypoint((6,5),(0,10),(-1,0)))
-#waypoints.append(Waypoint((0,10),(0,10),(1,0)))
-#waypoints.append(Waypoint((15,10),(0,-10),(-1,0)))
-#waypoints.append(Waypoint((10,5),(0,-10),(1,0)))
-#waypoints.append(Waypoint((15,0),(0,-10),(-1,0)))
-#waypoints.append(Waypoint((0,0),(0,10),(1,0)))
-
 path = from_waypoints(waypoints)
 visualize = Visualizer(path,offset=robot.width/2.)
 

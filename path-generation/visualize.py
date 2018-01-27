@@ -5,14 +5,25 @@ import matplotlib.gridspec as gridspec
 import seaborn as sns
 
 def plot_pairs(canvas, points, fstring=""):
-    x,y = zip(*points)
-    if fstring == "":
-        return canvas.plot(x,y)
+    if points:
+        x,y = zip(*points)
+        if fstring == "":
+            return canvas.plot(x,y)
+        else:
+            return canvas.plot(x,y,fstring)
     else:
-        return canvas.plot(x,y,fstring)
+        if fstring == "":
+            return canvas.plot([],[])
+        else:
+            return canvas.plot([],[],fstring)
 
 def update_data(line,points):
-    x,y = zip(*points)
+    if points:
+        x,y = zip(*points)
+    else:
+        x = []
+        y = []
+
     line.set_xdata(x)
     line.set_ydata(y)
 
@@ -27,29 +38,36 @@ class Visualizer:
         self.ax1 = plt.subplot2grid((3,3), (0,0), colspan=3, rowspan=3)
         self.ax1.set_xlim(-0.5,20.5)
         self.ax1.set_ylim(-0.5,20.5)
-        #self.ax1.axis('equal')
         what = self.draw_path(path,self.ax1,False,offset)
         self.path_lines={"center":what[0],"left":what[1],"right":what[2]}
         plt.show(block=False)
         #self.__draw_curve(vp,ax1)
 
     def update_path(self,path,offset=0):
-        points = []
-        for t in range(1000):
-            points.append(path.eval(t/1000.0))
+        if path is None:
+            update_data(self.path_lines["left"],[])
+            update_data(self.path_lines["right"],[])
+            update_data(self.path_lines["center"],[])
 
-        if offset:
-            lpoints = []
-            rpoints = []
+        else:
+            points = []
             for t in range(1000):
-                pos = path.eval(t/1000.)
-                normal = path.unit_normal(t/1000.)
-                lpoints.append(pos+normal*offset)
-                rpoints.append(pos-normal*offset)
-            update_data(self.path_lines["left"],lpoints)
-            update_data(self.path_lines["right"],rpoints)
+                points.append(path.eval(t/1000.0))
 
-        update_data(self.path_lines["center"],points)
+
+            if offset:
+                lpoints = []
+                rpoints = []
+                for t in range(1000):
+                    pos = path.eval(t/1000.)
+                    normal = path.unit_normal(t/1000.)
+                    lpoints.append(pos+normal*offset)
+                    rpoints.append(pos-normal*offset)
+                update_data(self.path_lines["left"],lpoints)
+                update_data(self.path_lines["right"],rpoints)
+
+            update_data(self.path_lines["center"],points)
+
         plt.draw()
 
 
@@ -61,6 +79,10 @@ class Visualizer:
         plot_pairs(points,canvas)
 
     def draw_path(self,path,canvas,segmented=False,offset=0):
+        if path is None:
+            center = plot_pairs(canvas,[])
+            left = plot_pairs(canvas,[],'r--')
+            right = plot_pairs(canvas,[],'r--')
         if segmented:
             for s in path.splines:
                 self.draw_spline(s,canvas)

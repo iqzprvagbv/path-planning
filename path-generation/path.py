@@ -83,6 +83,9 @@ class Path:
         yield 1
 
 def from_waypoints(waypoints):
+    if len(waypoints) < 2:
+        return None
+        
     last_waypoint = None
     splines = []
     for w in waypoints:
