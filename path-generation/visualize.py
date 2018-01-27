@@ -7,15 +7,14 @@ import seaborn as sns
 def plot_pairs(canvas, points, fstring=""):
     if points:
         x,y = zip(*points)
-        if fstring == "":
-            return canvas.plot(x,y)
-        else:
-            return canvas.plot(x,y,fstring)
     else:
-        if fstring == "":
-            return canvas.plot([],[])
-        else:
-            return canvas.plot([],[],fstring)
+        x = []
+        y = []
+        
+    if fstring == "":
+        return canvas.plot([],[])
+    else:
+        return canvas.plot([],[],fstring)
 
 def update_data(line,points):
     if points:
