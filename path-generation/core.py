@@ -21,19 +21,27 @@ robot = Robot(robot_width,max_velocity,max_acceleration)
 # Way points for the curve to hit
 # Format: Waypoint(position, velocity vector, acceleration vector)
 waypoints = []
-waypoints.append(Waypoint((0,0),(0,10),(1,0)))
-waypoints.append(Waypoint((5,5),(0,10),(-1,0)))
-waypoints.append(Waypoint((0,10),(0,10),(1,0)))
-waypoints.append(Waypoint((15,10),(0,-10),(-1,0)))
-waypoints.append(Waypoint((10,5),(0,-10),(1,0)))
-waypoints.append(Waypoint((15,0),(0,-10),(-1,0)))
-waypoints.append(Waypoint((0,0),(0,10),(1,0)))
+waypoints.append(Waypoint((1,0),(0,10),(1,0)))
+waypoints.append(Waypoint((6,5),(0,10),(-1,0)))
+#waypoints.append(Waypoint((0,10),(0,10),(1,0)))
+#waypoints.append(Waypoint((15,10),(0,-10),(-1,0)))
+#waypoints.append(Waypoint((10,5),(0,-10),(1,0)))
+#waypoints.append(Waypoint((15,0),(0,-10),(-1,0)))
+#waypoints.append(Waypoint((0,0),(0,10),(1,0)))
+
+path = from_waypoints(waypoints)
+visualize = Visualizer(path,offset=robot.width/2.)
+
+intro_message = "Hello, type help to see list of commands"
+
+def update_path():
+    visualize.update_path(path,offset=robot.width/2.)
 
 class Prompt(cmd.Cmd):
 
     def do_waypoint(self, args):
         """ Manipulates the waypoints:\n waypoint : will list waypoints\n waypoint remove n : removes the nth waypoint (0 indexed)\n waypoint add (px,py) (vx,vy) (ay,ax) : adds waypoint with position (px,py), velocity (vx,vy), and acceleration (ax,ay)\n waypoint clear : deletes all waypoints """
-
+        global path
         if args:
             args = args.split(' ')
 
@@ -57,6 +65,9 @@ class Prompt(cmd.Cmd):
             if args[0] == "remove":
                 try:
                     index = int(args[1])
+                    del waypoints[index]
+                    path = from_waypoints(waypoints)
+                    update_path
                 except ValueError:
                     print " Could not parse", args[1]
             else:
@@ -72,6 +83,7 @@ class Prompt(cmd.Cmd):
                     print " Adding waypoint:"
                     print wp
                     waypoints.append(wp)
+                    path = from_waypoints(waypoints)
                 except ValueError:
                     print " Failed to parse one of the vectors"
             else:
@@ -79,6 +91,8 @@ class Prompt(cmd.Cmd):
 
         else:
             print " Couldn't parse, try help waypoint for more info"
+
+        update_path()
 
     def do_robot(self,args):
         """ Displays and sets robot data:\n robot : will list all robot attributes\n robot [attribute] : will display value for [attribute]\n robot [attribute] x : sets [attribute] to x \n\n Attributes \n ==========\n width : Distance from left wheel to right wheel in feet\n velocity : Max velocity of robot in feet per second\n acceleration : Max acceleration of robot in feet per second squared """
@@ -121,16 +135,15 @@ class Prompt(cmd.Cmd):
                 print " Could not recognize attribute:", attribute, "\n try help robot for more information on this command"
         else:
             print " Could not recogize command try \'help robot\' for more information"
+        update_path()
 
     def do_compute(self,args):
         """ Computes the velocity profile for the path currently defined.\n compute ds : ds is the distance between between planning points in feet"""
         if args:
             try:
                 ds = float(args)
-                path = from_waypoints(waypoints)
                 vp = VelocityProfile(path,robot,ds)
-                v = Visualizer()
-                v.draw_velocity_profile(vp)
+                visualize.draw_velocity_profile(vp)
             except ValueError:
                 print " Failed to parse", args
         else:
@@ -143,4 +156,4 @@ class Prompt(cmd.Cmd):
 if __name__ == '__main__':
     prompt = Prompt()
     prompt.prompt = "> "
-    prompt.cmdloop()
+    prompt.cmdloop(intro_message)
