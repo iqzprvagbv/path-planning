@@ -2,7 +2,7 @@ from path      import from_waypoints
 from profile   import VelocityProfile
 from robot     import Robot
 from spline    import Waypoint
-from visualize import draw_velocity_profile
+from visualize import Visualizer
 
 
 import numpy as np
@@ -129,7 +129,8 @@ class Prompt(cmd.Cmd):
                 ds = float(args)
                 path = from_waypoints(waypoints)
                 vp = VelocityProfile(path,robot,ds)
-                draw_velocity_profile(vp)
+                v = Visualizer()
+                v.draw_velocity_profile(vp)
             except ValueError:
                 print " Failed to parse", args
         else:
@@ -143,11 +144,3 @@ if __name__ == '__main__':
     prompt = Prompt()
     prompt.prompt = "> "
     prompt.cmdloop()
-
-# Distance between planning points in feet
-ds = 0.1
-
-
-#path = from_waypoints(waypoints)
-#vp = VelocityProfile(path,robot,ds)
-#draw_velocity_profile(vp)
