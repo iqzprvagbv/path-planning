@@ -1,12 +1,12 @@
 from path      import from_waypoints
-from profile   import VelocityProfile
+from profile   import VelocityProfile, ProfileEncoder
 from robot     import Robot
 from spline    import Waypoint
 from visualize import Visualizer
 
 
 import numpy as np
-import util
+import json
 import cmd
 
 # Width of the robot in feet
@@ -23,13 +23,22 @@ robot = Robot(robot_width,max_velocity,max_acceleration)
 waypoints = []
 path = from_waypoints(waypoints)
 visualize = Visualizer(path,offset=robot.width/2.)
-
+profile = None
 intro_message = "Hello, type help to see list of commands"
 
 def update_path():
     visualize.update_path(path,offset=robot.width/2.)
 
 class Prompt(cmd.Cmd):
+
+    def help_intro(self):
+        print "If you some how stumbled upon this program and don't know what it is, details here: https://github.com/iqzprvagbv/path-planning/ \n"
+        print "Here's the tl;dr on how to use this program\n"
+        print "Set the robot parameters width, maximum velocity, and acceleration using \'robot [parameter] [value]\'\n"
+        print "Add waypoints using the commands \'waypoint position velocity accel\' If the command show is run before this you will be able to see the path in realtime. Fixing mistakes can be done with \'waypoint remove n\'\n"
+        print "Compute the numerical velocity profile with the command \'compute ds\' where ds is the distance between planning points\n"
+        print "If the plots look acceptable save the profile using \'save profile_name\' which will save the file to output\profile_name.json\n"
+        print "The command 'clear' will reset everything but the robot and let you plot again, \'quit\' closes the program, and \'help [command]\' will display help text and options for every command. Enjoy."
 
     def do_waypoint(self, args):
         """ Manipulates the waypoints:\n waypoint : will list waypoints\n waypoint remove n : removes the nth waypoint (0 indexed)\n waypoint add (px,py) (vx,vy) (ay,ax) : adds waypoint with position (px,py), velocity (vx,vy), and acceleration (ax,ay)\n waypoint clear : deletes all waypoints """
@@ -131,15 +140,36 @@ class Prompt(cmd.Cmd):
 
     def do_compute(self,args):
         """ Computes the velocity profile for the path currently defined.\n compute ds : ds is the distance between between planning points in feet"""
+        global profile
         if args:
             try:
                 ds = float(args)
-                vp = VelocityProfile(path,robot,ds)
-                visualize.draw_velocity_profile(vp)
+                profile = VelocityProfile(path,robot,ds)
+                visualize.draw_velocity_profile(profile)
             except ValueError:
                 print " Failed to parse", args
         else:
             print " Failed to parse, try \'help compute\' for more help"
+
+    def do_show(self,args):
+        """ Displays the plots. If the plots close this wont' actually reopen them at the moment. That evidently requires embedding matplotlib graphs in some gui interface and I'm lazy"""
+        visualize.show()
+
+    def do_save(self,args):
+        """Saves the current velocity profile.\n save [name] : saves to name.json"""
+        if len(args) == 0:
+            name = "profile.json"
+        else:
+            args = args.split(" ")
+            name = args[0] + ".json"
+
+        print "saving to", name
+        print "dunno how to do io dumping to console instead"
+
+        path = "../output/" + name
+
+        with open(name, 'w') as output:
+            json.dump(profile, output, cls=ProfileEncoder)
 
     def do_quit(self, line):
         """Quits the program"""

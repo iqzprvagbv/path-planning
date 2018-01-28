@@ -30,9 +30,9 @@ class PlanningPoint:
         if self.R == 0:
             v = robot.max_velocity
         elif self.R > 0:
-            v = (self.R*robot.max_velocity)/(self.R + (robot.width/2))
+            v = (self.R*robot.max_velocity)/(self.R + (robot.width/2.))
         else:
-            v = (self.R*robot.max_velocity)/(self.R - (robot.width/2))
+            v = (self.R*robot.max_velocity)/(self.R - (robot.width/2.))
 
         self.max_velocity = v
 
