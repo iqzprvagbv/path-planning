@@ -10,7 +10,7 @@ def plot_pairs(canvas, points, fstring=""):
     else:
         x = []
         y = []
-        
+
     if fstring == "":
         return canvas.plot([],[])
     else:
@@ -32,15 +32,18 @@ class Visualizer:
         sns.set()
         self.curve_data = []
         plt.show()
-        fig1 = plt.figure(1)
+        self.fig1 = plt.figure(1)
         gridspec.GridSpec(3,3)
         self.ax1 = plt.subplot2grid((3,3), (0,0), colspan=3, rowspan=3)
         self.ax1.set_xlim(-0.5,20.5)
         self.ax1.set_ylim(-0.5,20.5)
         what = self.draw_path(path,self.ax1,False,offset)
         self.path_lines={"center":what[0],"left":what[1],"right":what[2]}
-        plt.show(block=False)
+        #plt.show(block=False)
         #self.__draw_curve(vp,ax1)
+
+    def show(self):
+        plt.show(block=False)
 
     def update_path(self,path,offset=0):
         if path is None:
@@ -69,7 +72,6 @@ class Visualizer:
 
         plt.draw()
 
-
     def draw_spline(self,spline,canvas):
         points = []
         for t in range(1000):
@@ -82,9 +84,6 @@ class Visualizer:
             center = plot_pairs(canvas,[])
             left = plot_pairs(canvas,[],'r--')
             right = plot_pairs(canvas,[],'r--')
-        if segmented:
-            for s in path.splines:
-                self.draw_spline(s,canvas)
         else:
             points = []
             for t in range(1000):
@@ -102,7 +101,8 @@ class Visualizer:
                 right = plot_pairs(canvas,rpoints,'r--')
 
             center = plot_pairs(canvas,points)
-            return center + left + right
+
+        return center + left + right
 
     def draw_velocity_profile(self,vp):
 
