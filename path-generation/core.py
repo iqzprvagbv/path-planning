@@ -1,3 +1,5 @@
+"""Provides the user interface and main loop for path-generation"""
+
 import json
 import cmd
 
@@ -13,7 +15,19 @@ from velocity_profile   import VelocityProfile, ProfileEncoder
 INTRO_MESSAGE = "Hello, type help to see list of commands"
 
 class Prompt(cmd.Cmd):
+    """User interface for profile generation
 
+    Defines all the commands users can use to generate and work on numerical
+    velocity profiles. Also supplies the command loop structure.
+
+    Attributes:
+        waypoints : A list of waypoints which define the path
+        path : The path the robot will drive
+        robot : The robot that will have to follow the path
+        visualize : The visualizer which displays the path and profiles
+        profile : The numerical velocity profile
+
+    """
     def __init__(self):
         self.waypoints = []
         self.profile = None
@@ -99,7 +113,7 @@ class Prompt(cmd.Cmd):
                 an array
         """
         try:
-            return np.fromstring(vector[1,-1], sep=",")
+            return np.fromstring(vector[1, -1], sep=",")
         except ValueError:
             raise ValueError("Could not parse: " + vector)
 
@@ -154,6 +168,22 @@ class Prompt(cmd.Cmd):
         print " waypoint clear : deletes all waypoints "
 
     def do_waypoint(self, args):
+        """Handles user input for waypoint manipulation
+
+        Allows the user to modify the list of waypoints. The current commands
+        which are accepted are:
+        - waypoint clear : clears all waypoints
+        - waypoint remove n : removes the nth waypoint (0 indexed) handled by
+            :func:`~core.Prompt.remove_waypoint`
+        - waypoint add position velocity acceleration : adds a waypoint with
+            the givne position, velocity, and acceleration. handled by
+            :func:`~core.Prompt.add_waypoint`
+
+        Args:
+            args (str) : A string representing all the text from the users input
+                after 'waypoint'
+        """
+
         if args:
             args = args.split(' ')
 
@@ -179,6 +209,7 @@ class Prompt(cmd.Cmd):
 
     @staticmethod
     def help_robot():
+        """Displays help text for robot command"""
         print " Displays and sets robot data:"
         print " robot : will list all robot attributes"
         print " robot [attribute] : will display value for [attribute]"
@@ -191,6 +222,20 @@ class Prompt(cmd.Cmd):
               " in feet per second squared "
 
     def do_robot(self, args):
+        """Handles user input for the robot command
+
+        Allows the user to manipulate the robot object from the terminal.
+        Accepted user commands at the moment are:
+        - robot : prints the robot object
+        - robot [attribute] : prints the value of the attribute handled by
+            :func:`~core.Prompt.print_attribute`
+        - robot [attribute] [value] : sets the value of attribute to value
+            handled by :func:`~core.Prompt.update_robot`
+
+        Args:
+            args (str) : A string representing all of the user input after
+                'robot'
+        """
         if args:
             args = args.split(" ")
         else:
@@ -215,12 +260,24 @@ class Prompt(cmd.Cmd):
 
     @staticmethod
     def help_compute():
+        """Prints the help text for the compute command"""
         print " Computes the velocity profile of currently defined  path."
         print " compute ds : ds is the distance between between planning",\
               " points in feet"
 
     def do_compute(self, args):
+        """Handles the user input to the copmpute command
 
+        Takes all the waypoints currently defined, the path through them,
+        and the robot and generates a numerical velocity profile. The details
+        of that computation are too long to outline here and are all in the
+        velocity_profile module.
+
+        Args:
+            args (str) : All the text after the 'compute' will be parsed to
+                a floating number representing the distance between planning
+                points
+        """
         if args:
             try:
                 distance = float(args)
@@ -233,11 +290,18 @@ class Prompt(cmd.Cmd):
 
     @staticmethod
     def help_show():
+        """Prints the help text for the show function."""
         print " Displays the plots. If the plots close this won't",\
               " reopen them at the moment. That requires embedding",\
               " matplotlib graphs in some gui interface and I'm lazy"
 
     def do_show(self, args):
+        """Turns on the matplotlib plots
+
+        Enables the matplotlib plots to render, if any of them are closed this
+        will not reshow them at the moment. I need to work out a better way to
+        handle the plots.
+        """
         if args:
             print "Show does not take arguments"
         else:
@@ -245,10 +309,22 @@ class Prompt(cmd.Cmd):
 
     @staticmethod
     def help_save():
+        """Prints the help text for the save command."""
         print "Saves the current velocity profile."
         print " save [name] : saves to name.json"
 
     def do_save(self, args):
+        """"Handles user input for the save command
+
+        Allows the user to save the numerical velocity profile to a json file.
+        At the moment it's very dumb and just dumps it out into same file where
+        this one is located. Moreover it assumes everything after the word
+        'save' is the of the output file.
+
+        Args:
+            args (str) : A string representing all of the user input after
+                'save'
+        """
         if args:
             name = args + ".json"
         else:
@@ -260,6 +336,7 @@ class Prompt(cmd.Cmd):
 
     @staticmethod
     def help_intro():
+        """Prints a short tutorial on how to use the command prompt interface"""
         print "If you some how stumbled upon this program and don't know", \
               "what it is, details can be found here:", \
               " https://github.com/iqzprvagbv/path-planning/ \n"
