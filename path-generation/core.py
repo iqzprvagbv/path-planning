@@ -54,29 +54,53 @@ class Prompt(cmd.Cmd):
             self.robot.acceleration = value
             print " Set acceleration to", value, "feet per second squared"
         else:
-            print " Could not recognize attribute:", attribute, "\n try help robot for more information on this command"
+            print " Could not recognize attribute:", attribute
+            print " try help robot for more information on this command"
 
     def get_attribute(self, attribute):
         if attribute == "width":
             print " Width:", self.robot.width, "feet"
         elif attribute == "velocity":
-            print " Velocity:", self.robot.max_velocity, "feet per second"
+            print " Velocity:", self.robot.max_velocity, \
+                  "feet per second"
         elif attribute == "acceleration":
-            print " Acceleration:", self.robot.max_acceleration, "feet per second squared"
+            print " Acceleration:", self.robot.max_acceleration, \
+                  "feet per second squared"
         else:
-            print " Could not recognize attribute:", attribute, "\n try help robot for more information on this command"
+            print " Could not recognize attribute:", attribute, \
+                  " try help robot for more information on this command"
 
     def update_path(self):
         self.visualize.update_path(self.path, offset=self.robot.width/2.)
 
-    def help_intro(self):
-        print "If you some how stumbled upon this program and don't know what it is, details here: https://github.com/iqzprvagbv/path-planning/ \n"
-        print "Here's the tl;dr on how to use this program\n"
-        print "Set the robot parameters width, maximum velocity, and acceleration using \'robot [parameter] [value]\'\n"
-        print "Add waypoints using the commands \'waypoint position velocity accel\' If the command show is run before this you will be able to see the path in realtime. Fixing mistakes can be done with \'waypoint remove n\'\n"
-        print "Compute the numerical velocity profile with the command \'compute ds\' where ds is the distance between planning points\n"
-        print "If the plots look acceptable save the profile using \'save profile_name\' which will save the file to profile_name.json\n"
-        print "The command 'clear' will reset everything but the robot and let you plot again, \'quit\' closes the program, and \'help [command]\' will display help text and options for every command. Enjoy."
+    @staticmethod
+    def help_intro():
+        print "If you some how stumbled upon this program and don't know", \
+              "what it is, details can be found here:", \
+              " https://github.com/iqzprvagbv/path-planning/ \n"
+
+        print "Here's a quick tl;dr on the workflow in this program:"
+
+        print "Set the robot parameters width, maximum velocity, and", \
+              " acceleration using \'robot [parameter] [value]\'\n"
+
+        print "Add waypoints using the commands \'waypoint position", \
+              " velocity accel\' If the command show is run before this", \
+              " you will be able to see the path in realtime. Fixing",\
+              " mistakes can be done with \'waypoint remove n\'\n"
+
+        print "Compute the numerical velocity profile with the command",\
+              " \'compute ds\' where ds is the distance between planning",\
+              " points\n"
+
+        print "If the plots look acceptable save the profile using \'",\
+              "save profile_name\' which will save the file to ",\
+              "profile_name.json\n"
+
+        print "The command 'clear' will reset everything but the robot ",\
+              "and let you plot again, \'quit\' closes the program, and ",\
+              "\'help [command]\' will display help text and options for ",\
+              "every command. Enjoy."
 
     def print_waypoints(self):
         if self.waypoints:
@@ -85,9 +109,17 @@ class Prompt(cmd.Cmd):
         else:
             print "No waypoints"
 
-    def do_waypoint(self, args):
-        """ Manipulates the waypoints:\n waypoint : will list waypoints\n waypoint remove n : removes the nth waypoint (0 indexed)\n waypoint add (px,py) (vx,vy) (ay,ax) : adds waypoint with position (px,py), velocity (vx,vy), and acceleration (ax,ay)\n waypoint clear : deletes all waypoints """
+    @staticmethod
+    def help_waypoint():
+        print " Manipulates the waypoints:"
+        print " waypoint : will list waypoints"
+        print " waypoint remove n : removes the nth waypoint (0 indexed)"
+        print " waypoint add (px,py) (vx,vy) (ay,ax) :",\
+              " adds waypoint with position (px,py), velocity (vx,vy),",\
+              " and acceleration (ax,ay)"
+        print " waypoint clear : deletes all waypoints "
 
+    def do_waypoint(self, args):
         if args:
             args = args.split(' ')
 
@@ -111,8 +143,20 @@ class Prompt(cmd.Cmd):
 
         self.update_path()
 
+    @staticmethod
+    def help_robot():
+        print " Displays and sets robot data:"
+        print " robot : will list all robot attributes"
+        print " robot [attribute] : will display value for [attribute]"
+        print " robot [attribute] x : sets [attribute] to x \n"
+        print " Attributes"
+        print " =========="
+        print " width : Distance from left wheel to right wheel in feet"
+        print " velocity : Max velocity of robot in feet per second"
+        print " acceleration : Max acceleration of robot",\
+              " in feet per second squared "
+
     def do_robot(self, args):
-        """ Displays and sets robot data:\n robot : will list all robot attributes\n robot [attribute] : will display value for [attribute]\n robot [attribute] x : sets [attribute] to x \n\n Attributes \n ==========\n width : Distance from left wheel to right wheel in feet\n velocity : Max velocity of robot in feet per second\n acceleration : Max acceleration of robot in feet per second squared """
         if args:
             args = args.split(" ")
         else:
@@ -135,8 +179,14 @@ class Prompt(cmd.Cmd):
             print " Could not recogize command try \'help robot\' for more information"
         self.update_path()
 
+    @staticmethod
+    def help_compute():
+        print " Computes the velocity profile of currently defined  path."
+        print " compute ds : ds is the distance between between planning",\
+              " points in feet"
+
     def do_compute(self, args):
-        """ Computes the velocity profile for the path currently defined.\n compute ds : ds is the distance between between planning points in feet"""
+
         if args:
             try:
                 distance = float(args)
@@ -147,15 +197,24 @@ class Prompt(cmd.Cmd):
         else:
             print " Failed to parse, try \'help compute\' for more help"
 
+    @staticmethod
+    def help_show():
+        print " Displays the plots. If the plots close this won't",\
+              " reopen them at the moment. That requires embedding",\
+              " matplotlib graphs in some gui interface and I'm lazy"
+
     def do_show(self, args):
-        """ Displays the plots. If the plots close this wont' actually reopen them at the moment. That evidently requires embedding matplotlib graphs in some gui interface and I'm lazy"""
         if args:
             print "Show does not take arguments"
         else:
             self.visualize.show()
 
+    @staticmethod
+    def help_save():
+        print "Saves the current velocity profile."
+        print " save [name] : saves to name.json"
+
     def do_save(self, args):
-        """Saves the current velocity profile.\n save [name] : saves to name.json"""
         if args:
             name = args + ".json"
         else:
@@ -165,12 +224,13 @@ class Prompt(cmd.Cmd):
         with open(name, 'w') as output:
             json.dump(self.profile, output, cls=ProfileEncoder)
 
-    def do_quit(self, line):
+    @staticmethod
+    def do_quit(line):
         """Quits the program"""
         if line:
             print "Quit does not take any arguments"
-        else:
-            return True
+
+        return True
 
 if __name__ == '__main__':
     PROMPT = Prompt()
