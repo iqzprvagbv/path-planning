@@ -83,7 +83,7 @@ class VelocityProfile(object):
     def __init_points(self):
         print "Initializing Planning Points..."
         last_t = 0
-        steps = ceil(self.path.l/self.distance)
+        steps = ceil(self.path.total_length/self.distance)
         step = 1
         progress = 0
         for t in self.path.planning_times(self.distance):

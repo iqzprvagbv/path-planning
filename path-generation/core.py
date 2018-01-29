@@ -35,7 +35,7 @@ class Prompt(cmd.Cmd):
         try:
             position = np.fromstring(position[1:-1], sep=',')
             velocity = np.fromstring(velocity[1:-1], sep=',')
-            acceleration = np.fromstring(acceleration[3][1:-1], sep=',')
+            acceleration = np.fromstring(acceleration[1:-1], sep=',')
             waypoint = Waypoint(position, velocity, acceleration)
             print " Adding waypoint:"
             print waypoint

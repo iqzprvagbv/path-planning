@@ -32,8 +32,8 @@ class Path(object):
         elif t <= 0:
             spline = 0
         else:
-            x, spline = modf(t*self.segments)
-        return (self.splines[int(spline)], x)
+            t, spline = modf(t*self.segments)
+        return (self.splines[int(spline)], t)
 
     def eval(self, t):
         spline, t = self.__pick_spline(t)
