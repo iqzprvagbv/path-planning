@@ -3,11 +3,11 @@ import cmd
 
 import numpy as np
 
-from profile   import VelocityProfile, ProfileEncoder
-from path      import from_waypoints
-from robot     import Robot
-from spline    import Waypoint
-from visualize import Visualizer
+from path               import from_waypoints
+from robot              import Robot
+from spline             import Waypoint
+from visualize          import Visualizer
+from velocity_profile   import VelocityProfile, ProfileEncoder
 
 
 INTRO_MESSAGE = "Hello, type help to see list of commands"
@@ -22,29 +22,13 @@ class Prompt(cmd.Cmd):
         self.visualize = Visualizer(self.path, offset=self.robot.width/2.)
         cmd.Cmd.__init__(self)
 
-    def remove_waypoint(self, index):
-        try:
-            index = int(index)
-            del self.waypoints[index]
-            self.path = from_waypoints(self.waypoints)
-            self.update_path()
-        except ValueError:
-            print " Could not parse", index
-
-    def add_waypoint(self, position, velocity, acceleration):
-        try:
-            position = np.fromstring(position[1:-1], sep=',')
-            velocity = np.fromstring(velocity[1:-1], sep=',')
-            acceleration = np.fromstring(acceleration[1:-1], sep=',')
-            waypoint = Waypoint(position, velocity, acceleration)
-            print " Adding waypoint:"
-            print waypoint
-            self.waypoints.append(waypoint)
-            self.path = from_waypoints(self.waypoints)
-        except ValueError:
-            print " Failed to parse one of the vectors"
-
     def update_robot(self, attribute, value):
+        """Updates one of the robots attributes
+
+        Args:
+            attribute: A string representing which value to modify
+            value: A float to be inserted
+        """
         if attribute == "width":
             self.robot.width = value
             print " Set width to", value, "feet"
@@ -59,6 +43,13 @@ class Prompt(cmd.Cmd):
             print " try help robot for more information on this command"
 
     def print_attribute(self, attribute):
+        """Prints one of the robots attributes
+
+        Displays the requested attribute to the console
+
+        Args:
+            attribute: A string representing one of the robots properties
+        """
         if attribute == "width":
             print " Width:", self.robot.width, "feet"
         elif attribute == "velocity":
@@ -71,39 +62,80 @@ class Prompt(cmd.Cmd):
             print " Could not recognize attribute:", attribute, \
                   " try help robot for more information on this command"
 
-    def update_path(self):
-        self.visualize.update_path(self.path, offset=self.robot.width/2.)
+    def remove_waypoint(self, index):
+        """Removes a waypoint
+
+        This is meant to be called by the waypoint remove command. It parses
+        the index into an integer (hopefully) and then removes the waypoint.
+
+        Args:
+            index: The index of the waypoint to be removed, 0 indexed.
+        """
+
+        try:
+            index = int(index)
+            del self.waypoints[index]
+            self.path = from_waypoints(self.waypoints)
+            self.update_path()
+        except ValueError:
+            print " Could not parse", index
 
     @staticmethod
-    def help_intro():
-        print "If you some how stumbled upon this program and don't know", \
-              "what it is, details can be found here:", \
-              " https://github.com/iqzprvagbv/path-planning/ \n"
+    def parse_vector(vector):
+        """Parses a string into a numpy array
 
-        print "Here's a quick tl;dr on the workflow in this program:"
+        Chops off the first and last character and then parses into a numpy
+        array. This results in potentially weird outcomes.
 
-        print "Set the robot parameters width, maximum velocity, and", \
-              " acceleration using \'robot [parameter] [value]\'\n"
+        Args:
+            vector: A string in the form (1,2,...,n), [1,2,...,n],
+                <1,2,...,n> etc
 
-        print "Add waypoints using the commands \'waypoint position", \
-              " velocity accel\' If the command show is run before this", \
-              " you will be able to see the path in realtime. Fixing",\
-              " mistakes can be done with \'waypoint remove n\'\n"
+        Returns:
+            array: A numpy array
 
-        print "Compute the numerical velocity profile with the command",\
-              " \'compute ds\' where ds is the distance between planning",\
-              " points\n"
+        Raises:
+            ValueError: If the provided string can not be coerced into
+                an array
+        """
+        try:
+            return np.fromstring(vector[1,-1], sep=",")
+        except ValueError:
+            raise ValueError("Could not parse: " + vector)
 
-        print "If the plots look acceptable save the profile using \'",\
-              "save profile_name\' which will save the file to ",\
-              "profile_name.json\n"
+    def add_waypoint(self, position, velocity, acceleration):
+        """Adds a given waypoint
 
-        print "The command 'clear' will reset everything but the robot ",\
-              "and let you plot again, \'quit\' closes the program, and ",\
-              "\'help [command]\' will display help text and options for ",\
-              "every command. Enjoy."
+        This is meant to be called from the waypoint add command. It parses
+        the input into vectors then adds the waypoint.
+
+        Args:
+            position (str): Represents the position in 2d space of the waypoint.
+                Should be parsable by :func:`~core.Prompt.parse_vector`
+            velocity (str): Represents the velocity in 2d space of the waypoint.
+                Should be parsable by :func:`~core.Prompt.parse_vector`
+            acceleration (str): Represents the acceleration in 2d space of the
+                waypoint. Should be parsable by
+                :func:`~core.Prompt.parse_vector`
+        """
+        try:
+            position = self.parse_vector(position)
+            velocity = self.parse_vector(velocity)
+            acceleration = self.parse_vector(acceleration)
+            waypoint = Waypoint(position, velocity, acceleration)
+            print " Adding waypoint:"
+            print waypoint
+            self.waypoints.append(waypoint)
+            self.path = from_waypoints(self.waypoints)
+        except ValueError as err:
+            print err
+
+    def update_path(self):
+        """Updates and redraws the path"""
+        self.visualize.update_path(self.path, offset=self.robot.width/2.)
 
     def print_waypoints(self):
+        """Prints all of the waypoints."""
         if self.waypoints:
             for waypoint in self.waypoints:
                 print waypoint
@@ -112,6 +144,7 @@ class Prompt(cmd.Cmd):
 
     @staticmethod
     def help_waypoint():
+        """Displays the help text for the waypoint command."""
         print " Manipulates the waypoints:"
         print " waypoint : will list waypoints"
         print " waypoint remove n : removes the nth waypoint (0 indexed)"
@@ -224,6 +257,35 @@ class Prompt(cmd.Cmd):
 
         with open(name, 'w') as output:
             json.dump(self.profile, output, cls=ProfileEncoder)
+
+    @staticmethod
+    def help_intro():
+        print "If you some how stumbled upon this program and don't know", \
+              "what it is, details can be found here:", \
+              " https://github.com/iqzprvagbv/path-planning/ \n"
+
+        print "Here's a quick tl;dr on the workflow in this program:"
+
+        print "Set the robot parameters width, maximum velocity, and", \
+              " acceleration using \'robot [parameter] [value]\'\n"
+
+        print "Add waypoints using the commands \'waypoint position", \
+              " velocity accel\' If the command show is run before this", \
+              " you will be able to see the path in realtime. Fixing",\
+              " mistakes can be done with \'waypoint remove n\'\n"
+
+        print "Compute the numerical velocity profile with the command",\
+              " \'compute ds\' where ds is the distance between planning",\
+              " points\n"
+
+        print "If the plots look acceptable save the profile using \'",\
+              "save profile_name\' which will save the file to ",\
+              "profile_name.json\n"
+
+        print "The command 'clear' will reset everything but the robot ",\
+              "and let you plot again, \'quit\' closes the program, and ",\
+              "\'help [command]\' will display help text and options for ",\
+              "every command. Enjoy."
 
     @staticmethod
     def do_quit(line):
