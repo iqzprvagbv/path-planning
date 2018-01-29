@@ -1,13 +1,14 @@
 import json
 import cmd
 
+import numpy as np
+
 from profile   import VelocityProfile, ProfileEncoder
 from path      import from_waypoints
 from robot     import Robot
 from spline    import Waypoint
 from visualize import Visualizer
 
-import numpy as np
 
 INTRO_MESSAGE = "Hello, type help to see list of commands"
 
@@ -57,7 +58,7 @@ class Prompt(cmd.Cmd):
             print " Could not recognize attribute:", attribute
             print " try help robot for more information on this command"
 
-    def get_attribute(self, attribute):
+    def print_attribute(self, attribute):
         if attribute == "width":
             print " Width:", self.robot.width, "feet"
         elif attribute == "velocity":
@@ -166,7 +167,7 @@ class Prompt(cmd.Cmd):
             print self.robot
         elif len(args) == 1:
             attribute = args[0]
-            self.get_attribute(attribute)
+            self.print_attribute(attribute)
         elif len(args) == 2:
             attribute = args[0]
             try:
