@@ -40,49 +40,190 @@
             
   <div class="section" id="module-spline">
 <span id="spline-module"></span><h1>spline module<a class="headerlink" href="#module-spline" title="Permalink to this headline">¶</a></h1>
+<p>Contains the implementation of quintic bezier splines</p>
 <dl class="class">
 <dt id="spline.Spline">
 <em class="property">class </em><code class="descclassname">spline.</code><code class="descname">Spline</code><span class="sig-paren">(</span><em>p_0</em>, <em>p_1</em>, <em>p_2</em>, <em>p_3</em>, <em>p_4</em>, <em>p_5</em><span class="sig-paren">)</span><a class="headerlink" href="#spline.Spline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Quintic bezier spline implementation</p>
+<dl class="attribute">
+<dt id="spline.Spline.coeffecients">
+<code class="descname">coeffecients</code><a class="headerlink" href="#spline.Spline.coeffecients" title="Permalink to this definition">¶</a></dt>
+<dd><p>The vector of coeffecients for the polynomial</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="spline.Spline.total_length">
+<code class="descname">total_length</code><a class="headerlink" href="#spline.Spline.total_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>The length of the entire spline</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="spline.Spline.curvature_radius">
 <code class="descname">curvature_radius</code><span class="sig-paren">(</span><em>time</em><span class="sig-paren">)</span><a class="headerlink" href="#spline.Spline.curvature_radius" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns signed radius of curvature</p>
+<p>Computes the reciprocal to the curvature, choosing to return +inf if
+curvature is 0.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>time</strong> (<em>float</em>) – Time between 0 and 1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Signed radius of curvature</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="spline.Spline.eval">
 <code class="descname">eval</code><span class="sig-paren">(</span><em>time</em><span class="sig-paren">)</span><a class="headerlink" href="#spline.Spline.eval" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Evaluates the curve at point in time</p>
+<p>Computes the value of the polynomial at time t by dotting the
+coeffecient matrix with the parameter polynomial. This may not be the
+fastest way to do it as de Casteljau’s algorithm exists. May try
+swapping it out once more features are fleshed out, as it stands
+execution time is a non-issue.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>time</strong> (<em>float</em>) – Time value between 0 and 1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The result of evaluation</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">numpy array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="spline.Spline.heading">
 <code class="descname">heading</code><span class="sig-paren">(</span><em>time</em><span class="sig-paren">)</span><a class="headerlink" href="#spline.Spline.heading" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the heading of the robot</p>
+<p>Given a point in time return the heading of the robot. The heading is
+measured in radians and is given counter clockwise off of the x-axis,
+i.e. a tangent vector of (1,0) corresponds to a heading of 0 while
+(0,1) is a heading of pi/4.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>time</strong> (<em>float</em>) – Time between 0 and 1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Heading in radians</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="spline.Spline.length">
 <code class="descname">length</code><span class="sig-paren">(</span><em>start</em>, <em>end</em><span class="sig-paren">)</span><a class="headerlink" href="#spline.Spline.length" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Computes the length of a segment of the spline</p>
+<p>Using gaussian quadrature numerically computes the length of the spline
+between start and end.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> (<em>float</em>) – Starting time between 0 and 1</li>
+<li><strong>end</strong> (<em>float</em>) – Ending time between start and 1</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">length of the splite between points start and end</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="spline.Spline.planning_times">
 <code class="descname">planning_times</code><span class="sig-paren">(</span><em>distance</em><span class="sig-paren">)</span><a class="headerlink" href="#spline.Spline.planning_times" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Generates a list of planning times fixed distance apart</p>
+<p>Generates a list of times from 0 to 1 such that the distance from
+s(t_i) to s(t_{i+1}) along the spline is equal to distance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>distance</strong> (<em>float</em>) – The distance between each planning point</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><em>float</em> – A time such that the distance between the previous time and
+this time along the spline is the given distance.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="spline.Spline.tangent">
 <code class="descname">tangent</code><span class="sig-paren">(</span><em>time</em><span class="sig-paren">)</span><a class="headerlink" href="#spline.Spline.tangent" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Gives the tangent vector at a point in time</p>
+<p>Not really sure why I wrote it this way, this is essentially just a wrapper around the function <code class="xref py py-func docutils literal"><span class="pre">__derivative()</span></code></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>time</strong> (<em>float</em>) – Time between 0 and 1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Tangent vector at time t</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">numpy array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="spline.Spline.unit_normal">
 <code class="descname">unit_normal</code><span class="sig-paren">(</span><em>time</em><span class="sig-paren">)</span><a class="headerlink" href="#spline.Spline.unit_normal" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calculates unit normal at point in time</p>
+<p>Given a point in time computes the unit normal vector at that point. We technically cheat a little bit here, we take the unit tangent normal then rotate 90 degrees. Seems to work though.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>time</strong> (<em>float</em>) – Time between 0 and 1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Unit normal at time</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">numpy array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="spline.Spline.unit_tangent">
 <code class="descname">unit_tangent</code><span class="sig-paren">(</span><em>time</em><span class="sig-paren">)</span><a class="headerlink" href="#spline.Spline.unit_tangent" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Gives the unit tangent vector at point in Time</p>
+<p>Same as calling <code class="xref py py-func docutils literal"><span class="pre">__derivative()</span></code> then normalizing</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>time</strong> (<em>float</em>) – Time between 0 and 1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Tangent vector at point in time</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">numpy array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -90,12 +231,54 @@
 <dt id="spline.Waypoint">
 <em class="property">class </em><code class="descclassname">spline.</code><code class="descname">Waypoint</code><span class="sig-paren">(</span><em>position</em>, <em>velocity</em>, <em>acceleration</em><span class="sig-paren">)</span><a class="headerlink" href="#spline.Waypoint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>A waypoint for defining splines</p>
+<p>A waypoint for nicer spline generation. Instead of generating splines by explicitly defining their control points we can opt to join up two waypoint which are a position, velocity, and acceleration vector. The quintic nature of our spline will give us a singular unique spline going through the two waypoints such that those constraints are met.</p>
+<dl class="attribute">
+<dt id="spline.Waypoint.position">
+<code class="descname">position</code><a class="headerlink" href="#spline.Waypoint.position" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy array</em> – The position of the waypoint</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="spline.Waypoint.velocity">
+<code class="descname">velocity</code><a class="headerlink" href="#spline.Waypoint.velocity" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy array</em> – Velocity vector at the point</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="spline.Waypoint.acceleration">
+<code class="descname">acceleration</code><a class="headerlink" href="#spline.Waypoint.acceleration" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy array</em> – Acceleration vector at the point</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="function">
 <dt id="spline.from_waypoints">
 <code class="descclassname">spline.</code><code class="descname">from_waypoints</code><span class="sig-paren">(</span><em>initial</em>, <em>final</em><span class="sig-paren">)</span><a class="headerlink" href="#spline.from_waypoints" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Given two waypoints generate a spline</p>
+<p>Given two waypoints there is a unique quintic bezier spline which goes
+through the waypoints such that it’s velocity/acceleration vectors line up
+I should come back and add the equation at somepoint.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>initial</strong> (<a class="reference internal" href="#spline.Waypoint" title="spline.Waypoint"><em>Waypoint</em></a>) – Waypoint for the start of the spline</li>
+<li><strong>final</strong> (<a class="reference internal" href="#spline.Waypoint" title="spline.Waypoint"><em>Waypoint</em></a>) – Waypoint for the end of the spline</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A quintic spline through the waypoints</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#spline.Spline" title="spline.Spline">Spline</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </div>
 

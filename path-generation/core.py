@@ -173,8 +173,11 @@ class Prompt(cmd.Cmd):
         Allows the user to modify the list of waypoints. The current commands
         which are accepted are:
         - waypoint clear : clears all waypoints
-        - waypoint remove n : removes the nth waypoint (0 indexed) handled by :func:`~core.Prompt.remove_waypoint`
-        - waypoint add position velocity acceleration : adds a waypoint with the given position, velocity, and acceleration. handled by :func:`~core.Prompt.add_waypoint`
+        - waypoint remove n : removes the nth waypoint (0 indexed) handled by
+        :func:`~core.Prompt.remove_waypoint`
+        - waypoint add position velocity acceleration : adds a waypoint with
+        the given position, velocity, and acceleration. handled by
+        :func:`~core.Prompt.add_waypoint`
 
         Args:
             args (str) : A string representing all the text from the users input
@@ -225,8 +228,10 @@ class Prompt(cmd.Cmd):
         Accepted user commands at the moment are:
 
         - robot : prints the robot object
-        - robot [attribute] : prints the value of the attribute handled by :func:`~core.Prompt.print_attribute`
-        - robot [attribute] [value] : sets the value of attribute to value handled by :func:`~core.Prompt.update_robot`
+        - robot [attribute] : prints the value of the attribute handled by
+        :func:`~core.Prompt.print_attribute`
+        - robot [attribute] [value] : sets the value of attribute to value
+        handled by :func:`~core.Prompt.update_robot`
 
         Args:
             args (str) : A string representing all of the user input after
